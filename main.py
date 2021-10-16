@@ -3,22 +3,36 @@ app = Flask('app')
 
 import requests
 import os
+import sys
+import time
 
-endpoint = "https://api.assemblyai.com/v2/transcript"
+def upload_audio(path):
+  filename = path
+  def read_file(filename, chunk_size=5242880):
+    with open(filename, 'rb') as _file:
+      while True:
+        data = _file.read(chunk_size)
+        if not data:
+          break
+        yield data
+  
+  headers = {'authorization': os.environ["authorization"]}
+  response = requests.post('https://api.assemblyai.com/v2/upload', headers=headers, data=read_file(filename))
 
-json = {
-  "audio_url": "https://s3-us-west-2.amazonaws.com/blog.assemblyai.com/audio/8-7-2018-post/7510.mp3"
-}
+  audio = response.json()["upload_url"]
+  print(audio)
+  endpoint = "https://api.assemblyai.com/v2/transcript"
 
-headers = {
-    "authorization": os.environ['authorization'],
+  json = {
+    "audio_url": audio
+  }
+
+  headers = {
+    "authorization": os.environ["authorization"],
     "content-type": "application/json"
-}
-
-response = requests.post(endpoint, json=json, headers=headers)
-
-print(response.json())
-
+  }
+  response = requests.post(endpoint, json=json, headers=headers)
+  return response.json()
 
 
 @app.route('/')
