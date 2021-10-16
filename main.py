@@ -34,6 +34,13 @@ def upload_audio(path):
   response = requests.post(endpoint, json=json, headers=headers)
   return response.json()
 
+def get_transcript(response):
+  endpoint = "https://api.assemblyai.com/v2/transcript/" + response
+  headers = {
+    "authorization": os.environ["authorization"],
+  }
+  response = requests.get(endpoint, headers=headers)
+  return response.json()["text"]
 
 @app.route('/')
 def hello_world():
