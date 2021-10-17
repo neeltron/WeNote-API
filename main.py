@@ -1,10 +1,22 @@
-from flask import Flask
+from flask import Flask, request, redirect, jsonify
+from werkzeug.utils import secure_filename
+
 app = Flask('app')
+
+app.secret_key = "jhgjhguy7iuh98h78989h976f756"
+app.config['UPLOAD_FOLDER'] = "uploads/"
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 import requests
 import os
 import sys
 import time
+import urllib.request
+
+ALLOWED_EXTENSIONS = set(['mp4', 'mp3', 'wav'])
+
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def upload_audio(path):
   filename = path
@@ -45,5 +57,26 @@ def get_transcript(response):
 @app.route('/')
 def hello_world():
   return 'Hello, World!'
+
+@app.route('/input', methods = ['POST'])
+def input():
+  if 'file' not in request.files:
+    resp = jsonify({'message' : 'No file part in the request'})
+    return resp
+  file = request.files['file']
+  if file.filename == '':
+    resp = jsonify({'message' : 'No file selected for uploading'})
+    resp.status_code = 400
+    return resp
+  if file and allowed_file(file.filename):
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    resp = jsonify({'message' : 'File successfully uploaded'})
+    resp.status_code = 201
+    return resp
+  else:
+    resp = jsonify({'message' : 'Allowed file types are txt, pdf, png, jpg, jpeg, gif'})
+    resp.status_code = 400
+    return resp
 
 app.run(host='0.0.0.0', port=8080) 
