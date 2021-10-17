@@ -35,7 +35,7 @@ def upload_audio(path):
   response = requests.post('https://api.assemblyai.com/v2/upload', headers=headers, data=read_file(filename))
 
   audio = response.json()["upload_url"]
-  print(audio)
+  # print(audio)
   endpoint = "https://api.assemblyai.com/v2/transcript"
 
   json = {
@@ -47,7 +47,7 @@ def upload_audio(path):
     "content-type": "application/json"
   }
   response = requests.post(endpoint, json=json, headers=headers)
-  return response.json()
+  return response.json()['id']
 
 def get_transcript(response):
   endpoint = "https://api.assemblyai.com/v2/transcript/" + response
@@ -55,11 +55,19 @@ def get_transcript(response):
     "authorization": os.environ["authorization"],
   }
   response = requests.get(endpoint, headers=headers)
-  return response.json()["text"]
+  return response.json()
 
 @app.route('/')
 def hello_world():
   return 'Hello, World!'
+
+@app.route('/output')
+def output():
+  a = upload_audio("uploads/a.mp3")
+  print(a)
+  b = get_transcript('f66dt8pts-8b94-4775-8797-27fb095bd25b')
+  print(b)
+  return b
 
 @app.route('/input', methods = ['POST'])
 def input():
