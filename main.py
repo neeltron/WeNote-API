@@ -5,9 +5,10 @@ from replit import db
 import requests
 import os
 import random
+import json
 
 app = Flask('app')
-cors = CORS(app, resources={r"/input": {"origins": "*"}})
+cors = CORS(app, resources={r"/input": {"origins": "*"}, r"/display": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 app.secret_key = "jhgjhguy7iuh98h78989h976f756"
@@ -76,9 +77,11 @@ def display():
   notes = []
   for i in db:
     b = get_transcript(i)
-    notes.append(b)
-  print(notes)
-  return b
+    dict = {"note": b}
+    notes.append(dict)
+  data = json.dumps(notes)
+
+  return data
 
 @app.route('/input', methods = ['POST'])
 def input():
