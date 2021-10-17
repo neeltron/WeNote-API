@@ -57,7 +57,7 @@ def get_transcript(num):
     "authorization": os.environ["authorization"],
   }
   response = requests.get(endpoint, headers=headers)
-  return response.json()
+  return response.json()['text']
 
 @app.route('/')
 def hello_world():
@@ -69,6 +69,15 @@ def output():
   print(a)
   b = get_transcript(a)
   print(b)
+  return b
+
+@app.route('/display')
+def display():
+  notes = []
+  for i in db:
+    b = get_transcript(i)
+    notes.append(b)
+  print(notes)
   return b
 
 @app.route('/input', methods = ['POST'])
