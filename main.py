@@ -84,21 +84,24 @@ def display():
 def input():
   if 'file' not in request.files:
     resp = jsonify({'message' : 'No file part in the request'})
-    return resp
+    # return resp
   file = request.files['file']
   if file.filename == '':
     resp = jsonify({'message' : 'No file selected for uploading'})
     resp.status_code = 400
-    return resp
+    # return resp
   if file and allowed_file(file.filename):
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     resp = jsonify({'message' : 'File successfully uploaded'})
     resp.status_code = 201
-    return resp
+    # return resp
   else:
     resp = jsonify({'message' : 'Allowed file types are mp3, mp4, wav'})
     resp.status_code = 400
-    return resp
+    # return resp
+  a = upload_audio("uploads/" + filename)
+  print(filename)
+  return a
 
 app.run(host='0.0.0.0', port=8080) 
