@@ -1,6 +1,10 @@
 from flask import Flask, request, redirect, jsonify
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
+from replit import db
+import requests
+import os
+import random
 
 app = Flask('app')
 cors = CORS(app, resources={r"/input": {"origins": "*"}})
@@ -9,12 +13,6 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 app.secret_key = "jhgjhguy7iuh98h78989h976f756"
 app.config['UPLOAD_FOLDER'] = "uploads/"
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-
-import requests
-import os
-import sys
-import time
-import urllib.request
 
 ALLOWED_EXTENSIONS = set(['mp4', 'mp3', 'wav'])
 
@@ -47,10 +45,14 @@ def upload_audio(path):
     "content-type": "application/json"
   }
   response = requests.post(endpoint, json=json, headers=headers)
-  return response.json()['id']
+  info = [filename, response.json()['id']]
+  num = random.randint(0, 1000)
+  db[str(num)] = info
+  return str(num)
 
-def get_transcript(response):
-  endpoint = "https://api.assemblyai.com/v2/transcript/" + response
+def get_transcript(num):
+  a = db[str(num)][1]
+  endpoint = "https://api.assemblyai.com/v2/transcript/" + a
   headers = {
     "authorization": os.environ["authorization"],
   }
@@ -65,7 +67,7 @@ def hello_world():
 def output():
   a = upload_audio("uploads/a.mp3")
   print(a)
-  b = get_transcript('f66dt8pts-8b94-4775-8797-27fb095bd25b')
+  b = get_transcript(a)
   print(b)
   return b
 
