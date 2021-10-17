@@ -6,6 +6,8 @@ import requests
 import os
 import random
 import json
+import time
+from datetime import datetime
 
 app = Flask('app')
 cors = CORS(app, resources={r"/input": {"origins": "*"}, r"/display": {"origins": "*"}})
@@ -46,7 +48,9 @@ def upload_audio(path):
     "content-type": "application/json"
   }
   response = requests.post(endpoint, json=json, headers=headers)
-  info = [filename, response.json()['id']]
+  ts = time.time()
+  dt_object = datetime.fromtimestamp(ts)
+  info = [filename, response.json()['id'], str(dt_object)]
   num = random.randint(0, 1000)
   db[str(num)] = info
   return str(num)
@@ -77,7 +81,7 @@ def display():
   notes = []
   for i in db:
     b = get_transcript(i)
-    dict = {"note": b}
+    dict = {"note": b, "time": db[i][2]}
     notes.append(dict)
   data = json.dumps(notes)
 
