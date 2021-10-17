@@ -1,7 +1,10 @@
 from flask import Flask, request, redirect, jsonify
 from werkzeug.utils import secure_filename
+from flask_cors import CORS, cross_origin
 
 app = Flask('app')
+cors = CORS(app, resources={r"/input": {"origins": "*"}})
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 app.secret_key = "jhgjhguy7iuh98h78989h976f756"
 app.config['UPLOAD_FOLDER'] = "uploads/"
@@ -75,7 +78,7 @@ def input():
     resp.status_code = 201
     return resp
   else:
-    resp = jsonify({'message' : 'Allowed file types are txt, pdf, png, jpg, jpeg, gif'})
+    resp = jsonify({'message' : 'Allowed file types are mp3, mp4, wav'})
     resp.status_code = 400
     return resp
 
