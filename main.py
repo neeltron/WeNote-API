@@ -15,13 +15,13 @@ import networkx as nx
 import nltk
 
 nltk.download('stopwords')
-
+db.clear()
 def read_article(text):
   textdata = text.splitlines()
   article = textdata[0].split(". ")
   sentences = []
   for sentence in article:
-    print(sentence)
+    # print(sentence)
     sentences.append(sentence.replace("[^a-zA-Z]", " ").split(" "))
   sentences.pop() 
   return sentences
@@ -63,7 +63,7 @@ def generate_summary(text, top_n=5):
   sentences =  read_article(text)
   sentence_similarity_martix = build_similarity_matrix(sentences, stop_words)
   sentence_similarity_graph = nx.from_numpy_array(sentence_similarity_martix)
-  scores = nx.pagerank(sentence_similarity_graph)
+  scores = nx.pagerank(sentence_similarity_graph, max_iter = 100000000)
   ranked_sentence = sorted(((scores[i],s) for i,s in enumerate(sentences)), reverse=True)    
   print("Indexes of top ranked_sentence order are ", ranked_sentence)    
   for i in range(top_n):
@@ -133,9 +133,9 @@ def hello_world():
 @app.route('/output')
 def output():
   a = upload_audio("uploads/a.mp3")
-  print(a)
+  # print(a)
   b = get_transcript(a)
-  print(b)
+  # print(b)
   return b
 
 @app.route('/display')
@@ -146,7 +146,16 @@ def display():
     dict = {"note": b, "time": db[i][2]}
     notes.append(dict)
   data = json.dumps(notes)
+  return data
 
+@app.route('/summarize')
+def summarize():
+  notes = []
+  for i in db:
+    b = get_transcript(i)
+    dict = {"note": generate_summary(str(b), 2), "time": db[i][2]}
+    notes.append(dict)
+  data = json.dumps(notes)
   return data
 
 @app.route('/input', methods = ['POST'])
@@ -171,5 +180,10 @@ def input():
   a = upload_audio("uploads/" + filename)
   print(filename)
   return a
+
+a = upload_audio("uploads/a.mp3")
+# print(a)
+b = get_transcript(a)
+# print(b)
 
 app.run(host='0.0.0.0', port=8080) 
