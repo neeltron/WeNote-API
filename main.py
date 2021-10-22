@@ -18,12 +18,12 @@ nltk.download('stopwords')
 db.clear()
 def read_article(text):
   textdata = text.splitlines()
-  article = textdata[0].split(". ")
+  article = textdata[0].split(".")
   sentences = []
   for sentence in article:
     # print(sentence)
     sentences.append(sentence.replace("[^a-zA-Z]", " ").split(" "))
-  sentences.pop() 
+  sentences.pop()
   return sentences
 
 def sentence_similarity(sent1, sent2, stopwords=None):
@@ -63,7 +63,7 @@ def generate_summary(text, top_n=5):
   sentences =  read_article(text)
   sentence_similarity_martix = build_similarity_matrix(sentences, stop_words)
   sentence_similarity_graph = nx.from_numpy_array(sentence_similarity_martix)
-  scores = nx.pagerank(sentence_similarity_graph, max_iter = 100000000)
+  scores = nx.pagerank(sentence_similarity_graph, max_iter = 1000000)
   ranked_sentence = sorted(((scores[i],s) for i,s in enumerate(sentences)), reverse=True)    
   print("Indexes of top ranked_sentence order are ", ranked_sentence)    
   for i in range(top_n):
