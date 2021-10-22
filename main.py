@@ -150,8 +150,9 @@ def display():
 
 @app.route('/summarize', methods = ["GET"])
 def summarize():
-  text = request.args.get('summ')
-  note = generate_summary(text, 2)
+  text = request.args.get('text')
+  sentences = request.args.get('sentences')
+  note = generate_summary(text, int(sentences))
   data = json.dumps(note)
   return data
 
