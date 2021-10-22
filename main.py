@@ -148,14 +148,11 @@ def display():
   data = json.dumps(notes)
   return data
 
-@app.route('/summarize')
+@app.route('/summarize', methods = ["GET"])
 def summarize():
-  notes = []
-  for i in db:
-    b = get_transcript(i)
-    dict = {"note": generate_summary(str(b), 2), "time": db[i][2]}
-    notes.append(dict)
-  data = json.dumps(notes)
+  text = request.args.get('summ')
+  note = generate_summary(text, 2)
+  data = json.dumps(note)
   return data
 
 @app.route('/input', methods = ['POST'])
